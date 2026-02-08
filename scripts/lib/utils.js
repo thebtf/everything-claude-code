@@ -289,6 +289,15 @@ function readFile(filePath) {
 }
 
 /**
+ * Read a text file safely with normalized line endings (CRLF → LF)
+ * Use this for parsing text content on Windows to ensure consistent behavior
+ */
+function readFileNormalized(filePath) {
+  const content = readFile(filePath);
+  return content ? content.replace(/\r\n/g, '\n') : content;
+}
+
+/**
  * Write a text file
  */
 function writeFile(filePath, content) {
@@ -370,7 +379,7 @@ function getGitModifiedFiles(patterns = []) {
   const result = runCommand('git diff --name-only HEAD');
   if (!result.success) return [];
 
-  let files = result.output.split('\n').filter(Boolean);
+  let files = result.output.split('\n').map(f => f.replace(/\r$/, '')).filter(Boolean);
 
   if (patterns.length > 0) {
     // Pre-compile patterns, skipping invalid ones
@@ -454,7 +463,7 @@ function countInFile(filePath, pattern) {
  * Search for pattern in file and return matching lines with line numbers
  */
 function grepFile(filePath, pattern) {
-  const content = readFile(filePath);
+  const content = readFileNormalized(filePath);
   if (content === null) return [];
 
   let regex;
@@ -510,6 +519,7 @@ module.exports = {
   // File operations
   findFiles,
   readFile,
+  readFileNormalized,
   writeFile,
   appendFile,
   replaceInFile,

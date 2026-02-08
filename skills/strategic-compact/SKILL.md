@@ -42,16 +42,13 @@ Add to your `~/.claude/settings.json`:
 ```json
 {
   "hooks": {
-    "PreToolUse": [
-      {
-        "matcher": "Edit",
-        "hooks": [{ "type": "command", "command": "node ~/.claude/skills/strategic-compact/suggest-compact.js" }]
-      },
-      {
-        "matcher": "Write",
-        "hooks": [{ "type": "command", "command": "node ~/.claude/skills/strategic-compact/suggest-compact.js" }]
-      }
-    ]
+    "PreToolUse": [{
+      "matcher": "tool == \"Edit\" || tool == \"Write\"",
+      "hooks": [{
+        "type": "command",
+        "command": "node ~/.claude/skills/strategic-compact/suggest-compact.js"
+      }]
+    }]
   }
 }
 ```

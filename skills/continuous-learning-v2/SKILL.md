@@ -102,7 +102,7 @@ Session Activity
 
 Add to your `~/.claude/settings.json`.
 
-**If installed as a plugin** (recommended):
+**If installed as a plugin** (recommended — cross-platform):
 
 ```json
 {
@@ -111,14 +111,14 @@ Add to your `~/.claude/settings.json`.
       "matcher": "*",
       "hooks": [{
         "type": "command",
-        "command": "${CLAUDE_PLUGIN_ROOT}/skills/continuous-learning-v2/hooks/observe.sh pre"
+        "command": "node \"${CLAUDE_PLUGIN_ROOT}/skills/continuous-learning-v2/hooks/observe.js\""
       }]
     }],
     "PostToolUse": [{
       "matcher": "*",
       "hooks": [{
         "type": "command",
-        "command": "${CLAUDE_PLUGIN_ROOT}/skills/continuous-learning-v2/hooks/observe.sh post"
+        "command": "node \"${CLAUDE_PLUGIN_ROOT}/skills/continuous-learning-v2/hooks/observe.js\""
       }]
     }]
   }
@@ -134,27 +134,43 @@ Add to your `~/.claude/settings.json`.
       "matcher": "*",
       "hooks": [{
         "type": "command",
-        "command": "~/.claude/skills/continuous-learning-v2/hooks/observe.sh pre"
+        "command": "node ~/.claude/skills/continuous-learning-v2/hooks/observe.js"
       }]
     }],
     "PostToolUse": [{
       "matcher": "*",
       "hooks": [{
         "type": "command",
-        "command": "~/.claude/skills/continuous-learning-v2/hooks/observe.sh post"
+        "command": "node ~/.claude/skills/continuous-learning-v2/hooks/observe.js"
       }]
     }]
   }
 }
 ```
 
+> **Note**: The `.js` hooks replace the previous `.sh` scripts. The Node.js versions work on Windows, macOS, and Linux without requiring bash or Python.
+
 ### 2. Initialize Directory Structure
 
 The Python CLI will create these automatically, but you can also create them manually:
 
 ```bash
+# Unix/macOS
 mkdir -p ~/.claude/homunculus/{instincts/{personal,inherited},evolved/{agents,skills,commands}}
 touch ~/.claude/homunculus/observations.jsonl
+```
+
+```powershell
+# Windows PowerShell
+$base = "$env:USERPROFILE\.claude\homunculus"
+@("instincts\personal","instincts\inherited","evolved\agents","evolved\skills","evolved\commands") | ForEach-Object { New-Item -ItemType Directory -Force -Path "$base\$_" }
+New-Item -ItemType File -Force -Path "$base\observations.jsonl"
+```
+
+Or cross-platform via Node.js:
+
+```bash
+node -e "const p=require('path'),f=require('fs'),h=require('os').homedir();const base=p.join(h,'.claude','homunculus');['instincts/personal','instincts/inherited','evolved/agents','evolved/skills','evolved/commands'].forEach(d=>f.mkdirSync(p.join(base,d),{recursive:true}));f.closeSync(f.openSync(p.join(base,'observations.jsonl'),'a'))"
 ```
 
 ### 3. Use the Instinct Commands

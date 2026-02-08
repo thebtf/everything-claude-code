@@ -24,8 +24,12 @@ Run these in order:
 ```bash
 go build ./...
 go vet ./...
-staticcheck ./... 2>/dev/null || echo "staticcheck not installed"
-golangci-lint run 2>/dev/null || echo "golangci-lint not installed"
+
+# 3. Static analysis (if available)
+staticcheck ./... || echo "staticcheck not installed"
+golangci-lint run || echo "golangci-lint not installed"
+
+# 4. Module verification
 go mod verify
 go mod tidy -v
 ```

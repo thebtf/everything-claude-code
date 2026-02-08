@@ -12,7 +12,7 @@ const path = require('path');
 
 const {
   getSessionsDir,
-  readFile,
+  readFileNormalized,
   log
 } = require('./utils');
 
@@ -69,7 +69,12 @@ function getSessionPath(filename) {
  * @returns {string|null} Session content or null if not found
  */
 function getSessionContent(sessionPath) {
-  return readFile(sessionPath);
+  if (!fs.existsSync(sessionPath)) {
+    return null;
+  }
+
+  // Use normalized reading for cross-platform compatibility
+  return readFileNormalized(sessionPath);
 }
 
 /**

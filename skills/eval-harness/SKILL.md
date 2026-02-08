@@ -55,8 +55,11 @@ Result: X/Y passed (previously Y/Y)
 ### 1. Code-Based Grader
 Deterministic checks using code:
 ```bash
-# Check if file contains expected pattern
+# Check if file contains expected pattern (Unix/macOS)
 grep -q "export function handleAuth" src/auth.ts && echo "PASS" || echo "FAIL"
+
+# Windows PowerShell equivalent
+# if (Select-String -Quiet -Pattern "export function handleAuth" src/auth.ts) { "PASS" } else { "FAIL" }
 
 # Check if tests pass
 npm test -- --testPathPattern="auth" && echo "PASS" || echo "FAIL"

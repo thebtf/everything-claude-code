@@ -89,8 +89,27 @@ rm -rf .next node_modules/.cache && npm run build
 # Reinstall dependencies
 rm -rf node_modules package-lock.json && npm install
 
-# Fix ESLint auto-fixable
+# Clear cache and rebuild (Unix/macOS)
+rm -rf .next node_modules/.cache
+# Windows PowerShell: Remove-Item -Recurse -Force .next, node_modules/.cache
+npm run build
+
+# Check specific file
+npx tsc --noEmit src/path/to/file.ts
+
+# Install missing dependencies
+npm install
+
+# Fix ESLint issues automatically
 npx eslint . --fix
+
+# Update TypeScript
+npm install --save-dev typescript@latest
+
+# Verify node_modules (Unix/macOS)
+rm -rf node_modules package-lock.json
+# Windows PowerShell: Remove-Item -Recurse -Force node_modules, package-lock.json
+npm install
 ```
 
 ## Success Metrics

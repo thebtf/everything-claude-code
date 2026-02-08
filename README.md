@@ -69,6 +69,18 @@ This repo is the raw code only. The guides explain everything.
 
 ## What's New
 
+### v1.5.0 — Full Windows Compatibility (Feb 2026)
+
+- **All shell scripts rewritten to Node.js** — `observe.sh`, `start-observer.sh`, `evaluate-session.sh` replaced with cross-platform `.js` equivalents
+- **Unix daemon eliminated** — Background observer (SIGUSR1/PID files/trap/disown) replaced with SessionEnd hook
+- **CRLF line ending handling** — New `readFileNormalized()` utility prevents parsing failures on Windows
+- **Python command auto-detection** — Finds `python`, `python3`, or `py` on any platform
+- **Windows-safe hooks** — Prettier, TypeScript checker, console.log detector all use `spawnSync` with argument arrays
+- **OpenCode plugin fixes** — Replaced `grep`, `test -f`, `osascript` with `fs`/`path` equivalents; platform-aware notifications
+- **Commands updated** — All slash commands include PowerShell/Windows alternatives alongside bash examples
+- **Path traversal prevention** — `sanitizeSessionId()` prevents malicious session IDs in temp file paths
+- **94 tests pass** on Windows, macOS, and Linux
+
 ### v1.4.1 — Bug Fix (Feb 2026)
 
 - **Fixed instinct import content loss** — `parse_instinct_file()` was silently dropping all content after frontmatter (Action, Evidence, Examples sections) during `/instinct-import`. Fixed by community contributor @ericcai0814 ([#148](https://github.com/affaan-m/everything-claude-code/issues/148), [#161](https://github.com/affaan-m/everything-claude-code/pull/161))
@@ -117,9 +129,8 @@ Get up and running in under 2 minutes:
 
 > ⚠️ **Important:** Claude Code plugins cannot distribute `rules` automatically. Install them manually:
 
-
+**macOS/Linux:**
 ```bash
-# Clone the repo first
 git clone https://github.com/affaan-m/everything-claude-code.git
 cd everything-claude-code
 
@@ -132,6 +143,19 @@ cd everything-claude-code
 ```
 
 For manual install instructions see the README in the `rules/` folder.
+
+**Windows (PowerShell):**
+```powershell
+git clone https://github.com/affaan-m/everything-claude-code.git
+
+# Install common rules (required)
+Copy-Item -Recurse everything-claude-code\rules\common\* $env:USERPROFILE\.claude\rules\
+
+# Install language-specific rules (pick your stack)
+Copy-Item -Recurse everything-claude-code\rules\typescript\* $env:USERPROFILE\.claude\rules\
+Copy-Item -Recurse everything-claude-code\rules\python\* $env:USERPROFILE\.claude\rules\
+Copy-Item -Recurse everything-claude-code\rules\golang\* $env:USERPROFILE\.claude\rules\
+```
 
 ### Step 3: Start Using
 
@@ -149,7 +173,16 @@ For manual install instructions see the README in the `rules/` folder.
 
 ## 🌐 Cross-Platform Support
 
-This plugin now fully supports **Windows, macOS, and Linux**. All hooks and scripts have been rewritten in Node.js for maximum compatibility.
+This plugin fully supports **Windows, macOS, and Linux**. All hooks and scripts are pure Node.js — no bash, no shell scripts, no Unix-only commands.
+
+| Component | Windows | macOS | Linux |
+|-----------|---------|-------|-------|
+| Hooks (PreToolUse, PostToolUse, etc.) | ✅ | ✅ | ✅ |
+| Continuous Learning v2 (observe, analyze) | ✅ | ✅ | ✅ |
+| Session persistence | ✅ | ✅ | ✅ |
+| Prettier/TypeScript auto-checks | ✅ | ✅ | ✅ |
+| Instinct CLI (Python wrapper) | ✅ | ✅ | ✅ |
+| Desktop notifications | ✅ PowerShell toast | ✅ osascript | ❌ |
 
 ### Package Manager Detection
 
@@ -306,22 +339,27 @@ everything-claude-code/
 |   |-- memory-persistence/       # Session lifecycle hooks (Longform Guide)
 |   |-- strategic-compact/        # Compaction suggestions (Longform Guide)
 |
-|-- scripts/          # Cross-platform Node.js scripts (NEW)
+|-- scripts/          # Cross-platform Node.js scripts
 |   |-- lib/                     # Shared utilities
 |   |   |-- utils.js             # Cross-platform file/path/system utilities
 |   |   |-- package-manager.js   # Package manager detection and selection
+|   |   |-- observer-utils.js    # Observation system utilities (NEW)
+|   |   |-- session-manager.js   # Session state management
 |   |-- hooks/                   # Hook implementations
 |   |   |-- session-start.js     # Load context on session start
 |   |   |-- session-end.js       # Save state on session end
 |   |   |-- pre-compact.js       # Pre-compaction state saving
 |   |   |-- suggest-compact.js   # Strategic compaction suggestions
 |   |   |-- evaluate-session.js  # Extract patterns from sessions
+|   |   |-- check-console-log.js # Console.log detection
+|   |   |-- analyze-observations.js  # Observation analysis at session end (NEW)
+|   |   |-- instinct-cli-wrapper.js  # Cross-platform Python wrapper (NEW)
 |   |-- setup-package-manager.js # Interactive PM setup
 |
-|-- tests/            # Test suite (NEW)
-|   |-- lib/                     # Library tests
-|   |-- hooks/                   # Hook tests
-|   |-- run-all.js               # Run all tests
+|-- tests/            # Test suite
+|   |-- lib/                     # Library tests (utils, package-manager, observer-utils)
+|   |-- hooks/                   # Hook tests (hooks.json, observe.js)
+|   |-- run-all.js               # Run all tests (94 tests)
 |
 |-- contexts/         # Dynamic system prompt injection contexts (Longform Guide)
 |   |-- dev.md              # Development mode context
@@ -503,6 +541,8 @@ This gives you instant access to all commands, agents, skills, and hooks.
 > cp -r everything-claude-code/rules/common/* .claude/rules/
 > cp -r everything-claude-code/rules/typescript/* .claude/rules/     # pick your stack
 > ```
+>
+> **Windows users:** See Step 2 above for PowerShell-equivalent commands.
 
 ---
 
@@ -510,24 +550,24 @@ This gives you instant access to all commands, agents, skills, and hooks.
 
 If you prefer manual control over what's installed:
 
+**macOS/Linux:**
 ```bash
-# Clone the repo
 git clone https://github.com/affaan-m/everything-claude-code.git
-
-# Copy agents to your Claude config
 cp everything-claude-code/agents/*.md ~/.claude/agents/
-
-# Copy rules (common + language-specific)
 cp -r everything-claude-code/rules/common/* ~/.claude/rules/
 cp -r everything-claude-code/rules/typescript/* ~/.claude/rules/   # pick your stack
-cp -r everything-claude-code/rules/python/* ~/.claude/rules/
-cp -r everything-claude-code/rules/golang/* ~/.claude/rules/
-
-# Copy commands
 cp everything-claude-code/commands/*.md ~/.claude/commands/
-
-# Copy skills
 cp -r everything-claude-code/skills/* ~/.claude/skills/
+```
+
+**Windows (PowerShell):**
+```powershell
+git clone https://github.com/affaan-m/everything-claude-code.git
+Copy-Item everything-claude-code\agents\*.md $env:USERPROFILE\.claude\agents\
+Copy-Item -Recurse everything-claude-code\rules\common\* $env:USERPROFILE\.claude\rules\
+Copy-Item -Recurse everything-claude-code\rules\typescript\* $env:USERPROFILE\.claude\rules\  # pick your stack
+Copy-Item everything-claude-code\commands\*.md $env:USERPROFILE\.claude\commands\
+Copy-Item -Recurse everything-claude-code\skills\* $env:USERPROFILE\.claude\skills\
 ```
 
 #### Add hooks to settings.json
@@ -582,10 +622,12 @@ Hooks fire on tool events. Example - warn about console.log:
   "matcher": "tool == \"Edit\" && tool_input.file_path matches \"\\\\.(ts|tsx|js|jsx)$\"",
   "hooks": [{
     "type": "command",
-    "command": "#!/bin/bash\ngrep -n 'console\\.log' \"$file_path\" && echo '[Hook] Remove console.log' >&2"
+    "command": "node -e \"const fs=require('fs');let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>{const i=JSON.parse(d);const p=i.tool_input?.file_path;if(p&&fs.existsSync(p)){const c=fs.readFileSync(p,'utf8');if(/console\\.log/.test(c))console.error('[Hook] Remove console.log from '+p)}console.log(d)})\""
   }]
 }
 ```
+
+> **Note:** All hooks must use `node` or `node -e` (no bash/sh/python) for cross-platform compatibility.
 
 ### Rules
 

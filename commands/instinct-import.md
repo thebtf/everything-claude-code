@@ -8,16 +8,22 @@ command: true
 
 ## Implementation
 
-Run the instinct CLI using the plugin root path:
+Run the instinct CLI using the cross-platform Node.js wrapper (recommended):
 
 ```bash
-python3 "${CLAUDE_PLUGIN_ROOT}/skills/continuous-learning-v2/scripts/instinct-cli.py" import <file-or-url> [--dry-run] [--force] [--min-confidence 0.7]
+node "${CLAUDE_PLUGIN_ROOT}/scripts/hooks/instinct-cli-wrapper.js" import <file-or-url> [--dry-run] [--force] [--min-confidence 0.7]
 ```
 
-Or if `CLAUDE_PLUGIN_ROOT` is not set (manual installation):
+Or using Python directly (Unix/macOS):
 
 ```bash
-python3 ~/.claude/skills/continuous-learning-v2/scripts/instinct-cli.py import <file-or-url>
+python3 "${CLAUDE_PLUGIN_ROOT}/skills/continuous-learning-v2/scripts/instinct-cli.py" import <file-or-url>
+```
+
+On Windows (use `python` instead of `python3`):
+
+```powershell
+python "%CLAUDE_PLUGIN_ROOT%\skills\continuous-learning-v2\scripts\instinct-cli.py" import <file-or-url>
 ```
 
 Import instincts from:

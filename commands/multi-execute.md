@@ -22,6 +22,9 @@ $ARGUMENTS
 
 ```
 # Resume session call (recommended) - Implementation Prototype
+# Windows CMD: Replace ~/ with %USERPROFILE%\, $PWD with %CD%
+# Windows PowerShell: Replace ~/ with $env:USERPROFILE\, $PWD is supported natively
+# Note: Heredocs (<<'EOF') are not supported in Windows - use a temp file or inline prompt
 Bash({
   command: "~/.claude/bin/codeagent-wrapper {{LITE_MODE_FLAG}}--backend <codex|gemini> {{GEMINI_MODEL_FLAG}}resume <SESSION_ID> - \"$PWD\" <<'EOF'
 ROLE_FILE: <role prompt path>
@@ -37,6 +40,9 @@ EOF",
 })
 
 # New session call - Implementation Prototype
+# Windows CMD: Replace ~/ with %USERPROFILE%\, $PWD with %CD%
+# Windows PowerShell: Replace ~/ with $env:USERPROFILE\, $PWD is supported natively
+# Note: Heredocs (<<'EOF') are not supported in Windows - use a temp file or inline prompt
 Bash({
   command: "~/.claude/bin/codeagent-wrapper {{LITE_MODE_FLAG}}--backend <codex|gemini> {{GEMINI_MODEL_FLAG}}- \"$PWD\" <<'EOF'
 ROLE_FILE: <role prompt path>
@@ -55,6 +61,9 @@ EOF",
 **Audit Call Syntax** (Code Review / Audit):
 
 ```
+# Windows CMD: Replace ~/ with %USERPROFILE%\, $PWD with %CD%
+# Windows PowerShell: Replace ~/ with $env:USERPROFILE\, $PWD is supported natively
+# Note: Heredocs (<<'EOF') are not supported in Windows - use a temp file or inline prompt
 Bash({
   command: "~/.claude/bin/codeagent-wrapper {{LITE_MODE_FLAG}}--backend <codex|gemini> {{GEMINI_MODEL_FLAG}}resume <SESSION_ID> - \"$PWD\" <<'EOF'
 ROLE_FILE: <role prompt path>
