@@ -22,6 +22,8 @@ $ARGUMENTS
 
 ```
 # Resume session call (recommended) - Implementation Prototype
+# Windows note: Replace ~/ with %USERPROFILE%\, $PWD with %CD%
+# Heredocs (<<'EOF') are not supported in cmd/PowerShell - use a temp file or inline prompt
 Bash({
   command: "~/.claude/bin/codeagent-wrapper {{LITE_MODE_FLAG}}--backend <codex|gemini> {{GEMINI_MODEL_FLAG}}resume <SESSION_ID> - \"$PWD\" <<'EOF'
 ROLE_FILE: <role prompt path>

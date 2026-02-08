@@ -62,7 +62,9 @@ function getSessionContent(sessionPath) {
     return null;
   }
 
-  return readFile(sessionPath);
+  const content = readFile(sessionPath);
+  // Normalize line endings for cross-platform compatibility
+  return content ? content.replace(/\r\n/g, '\n') : content;
 }
 
 /**

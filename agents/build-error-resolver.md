@@ -495,8 +495,9 @@ npx tsc --noEmit
 # Build Next.js
 npm run build
 
-# Clear cache and rebuild
+# Clear cache and rebuild (Unix/macOS)
 rm -rf .next node_modules/.cache
+# Windows PowerShell: Remove-Item -Recurse -Force .next, node_modules/.cache
 npm run build
 
 # Check specific file
@@ -511,8 +512,9 @@ npx eslint . --fix
 # Update TypeScript
 npm install --save-dev typescript@latest
 
-# Verify node_modules
+# Verify node_modules (Unix/macOS)
 rm -rf node_modules package-lock.json
+# Windows PowerShell: Remove-Item -Recurse -Force node_modules, package-lock.json
 npm install
 ```
 

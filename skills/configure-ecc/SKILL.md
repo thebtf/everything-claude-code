@@ -24,14 +24,23 @@ This skill must be accessible to Claude Code before activation. Two ways to boot
 
 ## Step 0: Clone ECC Repository
 
-Before any installation, clone the latest ECC source to `/tmp`:
+Before any installation, clone the latest ECC source to a temp directory:
 
 ```bash
+# Unix/macOS
 rm -rf /tmp/everything-claude-code
 git clone https://github.com/affaan-m/everything-claude-code.git /tmp/everything-claude-code
 ```
 
-Set `ECC_ROOT=/tmp/everything-claude-code` as the source for all subsequent copy operations.
+```powershell
+# Windows PowerShell
+Remove-Item -Recurse -Force "$env:TEMP\everything-claude-code" -ErrorAction SilentlyContinue
+git clone https://github.com/affaan-m/everything-claude-code.git "$env:TEMP\everything-claude-code"
+```
+
+Set `ECC_ROOT` as the source for all subsequent copy operations:
+- Unix/macOS: `ECC_ROOT=/tmp/everything-claude-code`
+- Windows: `$env:ECC_ROOT="$env:TEMP\everything-claude-code"`
 
 If the clone fails (network issues, etc.), use `AskUserQuestion` to ask the user to provide a local path to an existing ECC clone.
 

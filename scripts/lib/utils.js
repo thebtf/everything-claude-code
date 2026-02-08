@@ -321,7 +321,7 @@ function getGitModifiedFiles(patterns = []) {
   const result = runCommand('git diff --name-only HEAD');
   if (!result.success) return [];
 
-  let files = result.output.split('\n').filter(Boolean);
+  let files = result.output.split('\n').map(f => f.replace(/\r$/, '')).filter(Boolean);
 
   if (patterns.length > 0) {
     files = files.filter(file => {
@@ -367,7 +367,7 @@ function grepFile(filePath, pattern) {
   if (content === null) return [];
 
   const regex = pattern instanceof RegExp ? pattern : new RegExp(pattern);
-  const lines = content.split('\n');
+  const lines = content.replace(/\r\n/g, '\n').split('\n');
   const results = [];
 
   lines.forEach((line, index) => {

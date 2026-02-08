@@ -40,26 +40,27 @@ export const ECCHooksPlugin = async ({
       // Auto-format JS/TS files
       if (event.path.match(/\.(ts|tsx|js|jsx)$/)) {
         try {
-          await $`prettier --write ${event.path} 2>/dev/null`
+          await $`npx prettier --write ${event.path}`
           client.app.log("info", `[ECC] Formatted: ${event.path}`)
         } catch {
           // Prettier not installed or failed - silently continue
         }
       }
 
-      // Console.log warning check
+      // Console.log warning check (cross-platform: uses fs instead of grep)
       if (event.path.match(/\.(ts|tsx|js|jsx)$/)) {
         try {
-          const result = await $`grep -n "console\\.log" ${event.path} 2>/dev/null`.text()
-          if (result.trim()) {
-            const lines = result.trim().split("\n").length
+          const fs = await import("fs")
+          const content = fs.readFileSync(event.path, "utf8")
+          const matches = content.split("\n").filter((line: string) => /console\.log/.test(line))
+          if (matches.length > 0) {
             client.app.log(
               "warn",
-              `[ECC] console.log found in ${event.path} (${lines} occurrence${lines > 1 ? "s" : ""})`
+              `[ECC] console.log found in ${event.path} (${matches.length} occurrence${matches.length > 1 ? "s" : ""})`
             )
           }
         } catch {
-          // No console.log found (grep returns non-zero) - this is good
+          // File read failed - silently continue
         }
       }
     },
@@ -168,14 +169,15 @@ export const ECCHooksPlugin = async ({
     "session.created": async () => {
       client.app.log("info", "[ECC] Session started - Everything Claude Code hooks active")
 
-      // Check for project-specific context files
+      // Check for project-specific context files (cross-platform)
       try {
-        const hasClaudeMd = await $`test -f ${worktree}/CLAUDE.md && echo "yes"`.text()
-        if (hasClaudeMd.trim() === "yes") {
+        const fs = await import("fs")
+        const path = await import("path")
+        if (fs.existsSync(path.join(worktree, "CLAUDE.md"))) {
           client.app.log("info", "[ECC] Found CLAUDE.md - loading project context")
         }
       } catch {
-        // No CLAUDE.md found
+        // CLAUDE.md check failed
       }
     },
 
@@ -194,18 +196,19 @@ export const ECCHooksPlugin = async ({
       let totalConsoleLogCount = 0
       const filesWithConsoleLogs: string[] = []
 
+      const fs = await import("fs")
       for (const file of editedFiles) {
         if (!file.match(/\.(ts|tsx|js|jsx)$/)) continue
 
         try {
-          const result = await $`grep -c "console\\.log" ${file} 2>/dev/null`.text()
-          const count = parseInt(result.trim(), 10)
+          const content = fs.readFileSync(file, "utf8")
+          const count = (content.match(/console\.log/g) || []).length
           if (count > 0) {
             totalConsoleLogCount += count
             filesWithConsoleLogs.push(file)
           }
         } catch {
-          // No console.log found
+          // File read failed
         }
       }
 
@@ -222,9 +225,14 @@ export const ECCHooksPlugin = async ({
         client.app.log("info", "[ECC] Audit passed: No console.log statements found")
       }
 
-      // Desktop notification (macOS)
+      // Desktop notification (platform-aware)
       try {
-        await $`osascript -e 'display notification "Task completed!" with title "OpenCode ECC"' 2>/dev/null`
+        if (process.platform === "darwin") {
+          await $`osascript -e 'display notification "Task completed!" with title "OpenCode ECC"'`
+        } else if (process.platform === "win32") {
+          await $`powershell -Command "[System.Reflection.Assembly]::LoadWithPartialName('System.Windows.Forms'); [System.Windows.Forms.MessageBox]::Show('Task completed!','OpenCode ECC','OK','Information')"`
+        }
+        // Linux: no built-in notification without extra dependencies
       } catch {
         // Notification not supported or failed
       }

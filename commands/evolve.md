@@ -8,16 +8,22 @@ command: true
 
 ## Implementation
 
-Run the instinct CLI using the plugin root path:
+Run the instinct CLI using the cross-platform Node.js wrapper (recommended):
+
+```bash
+node "${CLAUDE_PLUGIN_ROOT}/scripts/hooks/instinct-cli-wrapper.js" evolve [--generate]
+```
+
+Or using Python directly (Unix/macOS):
 
 ```bash
 python3 "${CLAUDE_PLUGIN_ROOT}/skills/continuous-learning-v2/scripts/instinct-cli.py" evolve [--generate]
 ```
 
-Or if `CLAUDE_PLUGIN_ROOT` is not set (manual installation):
+On Windows (use `python` instead of `python3`):
 
-```bash
-python3 ~/.claude/skills/continuous-learning-v2/scripts/instinct-cli.py evolve [--generate]
+```powershell
+python "%CLAUDE_PLUGIN_ROOT%\skills\continuous-learning-v2\scripts\instinct-cli.py" evolve [--generate]
 ```
 
 Analyzes instincts and clusters related ones into higher-level structures:

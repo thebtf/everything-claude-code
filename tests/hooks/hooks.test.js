@@ -306,6 +306,28 @@ async function runTests() {
     }
   })) passed++; else failed++;
 
+  if (test('all hook commands use node or node -e (no bash/sh/python)', () => {
+    const hooksPath = path.join(__dirname, '..', '..', 'hooks', 'hooks.json');
+    const hooks = JSON.parse(fs.readFileSync(hooksPath, 'utf8'));
+
+    for (const [eventType, hookArray] of Object.entries(hooks.hooks)) {
+      for (const entry of hookArray) {
+        for (const hook of entry.hooks) {
+          if (hook.type === 'command') {
+            assert.ok(
+              hook.command.startsWith('node ') || hook.command.startsWith('node"') || hook.command === 'node',
+              `[${eventType}] Hook must use node, got: ${hook.command.substring(0, 60)}...`
+            );
+            assert.ok(
+              !hook.command.startsWith('bash ') && !hook.command.startsWith('sh ') && !hook.command.startsWith('python'),
+              `[${eventType}] Hook must not use bash/sh/python: ${hook.command.substring(0, 60)}...`
+            );
+          }
+        }
+      }
+    }
+  })) passed++; else failed++;
+
   if (test('script references use CLAUDE_PLUGIN_ROOT variable', () => {
     const hooksPath = path.join(__dirname, '..', '..', 'hooks', 'hooks.json');
     const hooks = JSON.parse(fs.readFileSync(hooksPath, 'utf8'));

@@ -36,6 +36,7 @@ process.stdin.on('end', () => {
       stdio: ['pipe', 'pipe', 'pipe']
     })
       .split('\n')
+      .map(f => f.replace(/\r$/, ''))
       .filter(f => /\.(ts|tsx|js|jsx)$/.test(f) && fs.existsSync(f));
 
     let hasConsole = false;

@@ -32,11 +32,17 @@ Analyze your repository's git history to extract coding patterns and generate SK
 # Get recent commits with file changes
 git log --oneline -n ${COMMITS:-200} --name-only --pretty=format:"%H|%s|%ad" --date=short
 
-# Get commit frequency by file
+# Get commit frequency by file (Unix/macOS)
 git log --oneline -n 200 --name-only | grep -v "^$" | grep -v "^[a-f0-9]" | sort | uniq -c | sort -rn | head -20
 
-# Get commit message patterns
+# Get commit frequency by file (Windows PowerShell)
+# git log --oneline -n 200 --name-only | Where-Object {$_ -and $_ -notmatch '^[a-f0-9]'} | Group-Object | Sort-Object Count -Descending | Select-Object -First 20
+
+# Get commit message patterns (Unix/macOS)
 git log --oneline -n 200 | cut -d' ' -f2- | head -50
+
+# Get commit message patterns (Windows PowerShell)
+# git log --oneline -n 200 | ForEach-Object { ($_ -split ' ', 2)[1] } | Select-Object -First 50
 ```
 
 ### Step 2: Detect Patterns
