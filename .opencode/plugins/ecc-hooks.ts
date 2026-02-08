@@ -14,6 +14,8 @@
  */
 
 import type { PluginContext } from "@opencode-ai/plugin"
+import * as fs from "fs"
+import * as path from "path"
 
 export const ECCHooksPlugin = async ({
   project,
@@ -50,9 +52,8 @@ export const ECCHooksPlugin = async ({
       // Console.log warning check (cross-platform: uses fs instead of grep)
       if (event.path.match(/\.(ts|tsx|js|jsx)$/)) {
         try {
-          const fs = await import("fs")
           const content = fs.readFileSync(event.path, "utf8")
-          const matches = content.split("\n").filter((line: string) => /console\.log/.test(line))
+          const matches = content.match(/console\.log/g) || []
           if (matches.length > 0) {
             client.app.log(
               "warn",
@@ -171,8 +172,6 @@ export const ECCHooksPlugin = async ({
 
       // Check for project-specific context files (cross-platform)
       try {
-        const fs = await import("fs")
-        const path = await import("path")
         if (fs.existsSync(path.join(worktree, "CLAUDE.md"))) {
           client.app.log("info", "[ECC] Found CLAUDE.md - loading project context")
         }
@@ -196,7 +195,6 @@ export const ECCHooksPlugin = async ({
       let totalConsoleLogCount = 0
       const filesWithConsoleLogs: string[] = []
 
-      const fs = await import("fs")
       for (const file of editedFiles) {
         if (!file.match(/\.(ts|tsx|js|jsx)$/)) continue
 

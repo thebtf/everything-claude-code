@@ -284,28 +284,6 @@ async function runTests() {
     assert.ok(hooks.hooks.PreCompact, 'Should have PreCompact hooks');
   })) passed++; else failed++;
 
-  if (test('all hook commands use node', () => {
-    const hooksPath = path.join(__dirname, '..', '..', 'hooks', 'hooks.json');
-    const hooks = JSON.parse(fs.readFileSync(hooksPath, 'utf8'));
-
-    const checkHooks = (hookArray) => {
-      for (const entry of hookArray) {
-        for (const hook of entry.hooks) {
-          if (hook.type === 'command') {
-            assert.ok(
-              hook.command.startsWith('node'),
-              `Hook command should start with 'node': ${hook.command.substring(0, 50)}...`
-            );
-          }
-        }
-      }
-    };
-
-    for (const [, hookArray] of Object.entries(hooks.hooks)) {
-      checkHooks(hookArray);
-    }
-  })) passed++; else failed++;
-
   if (test('all hook commands use node or node -e (no bash/sh/python)', () => {
     const hooksPath = path.join(__dirname, '..', '..', 'hooks', 'hooks.json');
     const hooks = JSON.parse(fs.readFileSync(hooksPath, 'utf8'));
@@ -315,7 +293,7 @@ async function runTests() {
         for (const hook of entry.hooks) {
           if (hook.type === 'command') {
             assert.ok(
-              hook.command.startsWith('node ') || hook.command.startsWith('node"') || hook.command === 'node',
+              hook.command.startsWith('node ') || hook.command === 'node',
               `[${eventType}] Hook must use node, got: ${hook.command.substring(0, 60)}...`
             );
             assert.ok(

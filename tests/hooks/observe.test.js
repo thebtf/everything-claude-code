@@ -7,7 +7,6 @@
 const assert = require('assert');
 const path = require('path');
 const fs = require('fs');
-const os = require('os');
 const { spawn } = require('child_process');
 
 // Test helper
@@ -73,10 +72,6 @@ async function runTests() {
   let passed = 0;
   let failed = 0;
 
-  // Setup: create temp homunculus dir for tests
-  const testHomunculusDir = path.join(os.tmpdir(), `homunculus-test-${Date.now()}`);
-  fs.mkdirSync(testHomunculusDir, { recursive: true });
-
   console.log('observe.js:');
 
   if (await asyncTest('exits 0 with empty stdin', async () => {
@@ -115,9 +110,6 @@ async function runTests() {
     const result = await runObserveScript(input);
     assert.strictEqual(result.code, 0, `Exit code should be 0, got ${result.code}`);
   })) passed++; else failed++;
-
-  // Cleanup
-  fs.rmSync(testHomunculusDir, { recursive: true, force: true });
 
   // Summary
   console.log('\n=== Test Results ===');

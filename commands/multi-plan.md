@@ -39,9 +39,6 @@ EOF",
 > **Windows note**: Replace `~/` with `%USERPROFILE%\`, `$PWD` with `%CD%`.
 > Heredocs (`<<'EOF'`) are not supported in cmd/PowerShell — use a temporary file or inline prompt instead.
 
-```
-```
-
 **Model Parameter Notes**:
 - `{{GEMINI_MODEL_FLAG}}`: When using `--backend gemini`, replace with `--gemini-model gemini-3-pro-preview ` (note trailing space); use empty string for codex
 

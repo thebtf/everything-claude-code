@@ -19,7 +19,7 @@ When creating a checkpoint:
 echo "$(date +%Y-%m-%d-%H:%M) | $CHECKPOINT_NAME | $(git rev-parse --short HEAD)" >> .claude/checkpoints.log
 
 # Cross-platform (Node.js one-liner)
-node -e "const d=new Date();const ts=d.toISOString().slice(0,16).replace('T',' ');const cp=process.argv[1];const {execSync}=require('child_process');const sha=execSync('git rev-parse --short HEAD',{encoding:'utf8'}).trim();require('fs').appendFileSync('.claude/checkpoints.log',ts+' | '+cp+' | '+sha+'\n')" "CHECKPOINT_NAME"
+node -e "const d=new Date();const pad=n=>String(n).padStart(2,'0');const ts=`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}-${pad(d.getHours())}:${pad(d.getMinutes())}`;const cp=process.argv[1];const {execSync}=require('child_process');const sha=execSync('git rev-parse --short HEAD',{encoding:'utf8'}).trim();require('fs').appendFileSync('.claude/checkpoints.log',ts+' | '+cp+' | '+sha+'\n')" "$CHECKPOINT_NAME"
 ```
 
 4. Report checkpoint created

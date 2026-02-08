@@ -12,6 +12,7 @@ const {
   getHomeDir,
   ensureDir,
   readFile,
+  readFileNormalized,
   appendFile,
   getTempDir,
   log,
@@ -52,7 +53,7 @@ function getObservationsFile() {
  * @returns {object} Parsed config with resolved paths
  */
 function loadConfig(configPath) {
-  const content = readFile(configPath);
+  const content = readFileNormalized(configPath);
   if (!content) return null;
 
   try {
@@ -105,6 +106,14 @@ function getFileSizeBytes(filePath) {
 }
 
 /**
+ * Generate a filesystem-safe timestamp string
+ * @returns {string} Timestamp in format YYYY-MM-DDTHH-MM-SS
+ */
+function getTimestamp() {
+  return new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+}
+
+/**
  * Rotate observations file if it exceeds maxMB
  * @param {string} file - Path to observations file
  * @param {number} maxMB - Maximum file size in megabytes
@@ -119,8 +128,7 @@ function rotateObservationsIfNeeded(file, maxMB) {
   const archiveDir = path.join(path.dirname(file), 'observations.archive');
   ensureDir(archiveDir);
 
-  const now = new Date();
-  const timestamp = now.toISOString().replace(/[:.]/g, '-').slice(0, 19);
+  const timestamp = getTimestamp();
   const archiveName = `observations-${timestamp}.jsonl`;
 
   fs.renameSync(file, path.join(archiveDir, archiveName));
@@ -142,7 +150,7 @@ function appendObservation(file, obj) {
  * @returns {number} Number of lines
  */
 function countObservations(file) {
-  const content = readFile(file);
+  const content = readFileNormalized(file);
   if (!content) return 0;
   return content.split('\n').filter(line => line.trim().length > 0).length;
 }
@@ -157,8 +165,7 @@ function archiveObservations(file) {
   const archiveDir = path.join(path.dirname(file), 'observations.archive');
   ensureDir(archiveDir);
 
-  const now = new Date();
-  const timestamp = now.toISOString().replace(/[:.]/g, '-').slice(0, 19);
+  const timestamp = getTimestamp();
   const archiveName = `processed-${timestamp}.jsonl`;
 
   fs.renameSync(file, path.join(archiveDir, archiveName));
@@ -185,7 +192,8 @@ function incrementCounter(sessionId) {
 
   try {
     const existing = fs.readFileSync(counterFile, 'utf8').trim();
-    count = parseInt(existing, 10) + 1;
+    const parsed = parseInt(existing, 10);
+    count = Number.isNaN(parsed) ? 1 : parsed + 1;
   } catch {
     // File doesn't exist yet
   }

@@ -162,7 +162,7 @@ New-Item -ItemType File -Force -Path "$base\observations.jsonl"
 Or cross-platform via Node.js:
 
 ```bash
-node -e "const p=require('path'),f=require('fs'),h=require('os').homedir();['instincts/personal','instincts/inherited','evolved/agents','evolved/skills','evolved/commands'].forEach(d=>f.mkdirSync(p.join(h,'.claude','homunculus',d),{recursive:true}))"
+node -e "const p=require('path'),f=require('fs'),h=require('os').homedir();const base=p.join(h,'.claude','homunculus');['instincts/personal','instincts/inherited','evolved/agents','evolved/skills','evolved/commands'].forEach(d=>f.mkdirSync(p.join(base,d),{recursive:true}));f.closeSync(f.openSync(p.join(base,'observations.jsonl'),'a'))"
 ```
 
 ### 3. Use the Instinct Commands

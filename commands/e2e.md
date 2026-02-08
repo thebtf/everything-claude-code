@@ -227,8 +227,12 @@ npx playwright show-report
 npx playwright show-trace artifacts/trace-abc123.zip
 
 # Screenshots are saved in artifacts/ directory
-# macOS: open | Windows: start | Linux: xdg-open
+# macOS
 open artifacts/search-results.png
+# Windows
+# start artifacts\search-results.png
+# Linux
+# xdg-open artifacts/search-results.png
 ```
 
 ## Flaky Test Detection

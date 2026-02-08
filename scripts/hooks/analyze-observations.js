@@ -16,7 +16,6 @@ const { spawnSync } = require('child_process');
 
 const {
   log,
-  readFile,
   writeFile,
   commandExists
 } = require('../lib/utils');
@@ -110,5 +109,5 @@ async function main() {
 
 main().catch(err => {
   log(`[Observer] Error: ${err.message}`);
-  process.exit(0);
+  process.exit(1);
 });

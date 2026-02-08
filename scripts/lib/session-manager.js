@@ -12,7 +12,7 @@ const path = require('path');
 
 const {
   getSessionsDir,
-  readFile,
+  readFileNormalized,
   log
 } = require('./utils');
 
@@ -62,9 +62,8 @@ function getSessionContent(sessionPath) {
     return null;
   }
 
-  const content = readFile(sessionPath);
-  // Normalize line endings for cross-platform compatibility
-  return content ? content.replace(/\r\n/g, '\n') : content;
+  // Use normalized reading for cross-platform compatibility
+  return readFileNormalized(sessionPath);
 }
 
 /**
