@@ -4,8 +4,10 @@
  *
  * Cross-platform (Windows, macOS, Linux)
  *
- * Runs after Edit tool use. If the edited file is a JS/TS file,
- * formats it with Prettier. Fails silently if Prettier isn't installed.
+ * Uses binary-resolver to find prettier:
+ *   1. System PATH (global install)
+ *   2. ~/.claude/hooks-packages/node_modules/.bin/
+ *   3. Auto-install to user scope on first use (no project node_modules)
  */
 
 const { execFileSync } = require('child_process');
@@ -29,15 +31,20 @@ process.stdin.on('end', () => {
 
     if (filePath && /\.(ts|tsx|js|jsx)$/.test(filePath)) {
       try {
-        // Use npx.cmd on Windows to avoid shell: true which enables command injection
-        const npxBin = process.platform === 'win32' ? 'npx.cmd' : 'npx';
-        execFileSync(npxBin, ['prettier', '--write', filePath], {
-          cwd: path.dirname(path.resolve(filePath)),
-          stdio: ['pipe', 'pipe', 'pipe'],
-          timeout: 15000
-        });
+        const pluginRoot = process.env.CLAUDE_PLUGIN_ROOT;
+        if (!pluginRoot) throw new Error('CLAUDE_PLUGIN_ROOT not set');
+
+        const { findOrInstall } = require(path.join(pluginRoot, 'scripts', 'lib', 'binary-resolver'));
+        const prettierBin = findOrInstall('prettier', 'prettier');
+
+        if (prettierBin) {
+          execFileSync(prettierBin, ['--write', filePath], {
+            stdio: ['pipe', 'pipe', 'pipe'],
+            timeout: 15000,
+          });
+        }
       } catch {
-        // Prettier not installed, file missing, or failed — non-blocking
+        // Binary not available or format failed — non-blocking
       }
     }
   } catch {
