@@ -82,7 +82,10 @@ async function main() {
     ], {
       stdio: 'pipe',
       encoding: 'utf8',
-      timeout: 120000
+      timeout: 120000,
+      // Run from temp dir so the analysis session doesn't pollute project
+      // session history and break `claude -c` (which resumes the newest session)
+      cwd: require('os').tmpdir()
     });
 
     if (result.status === 0) {
